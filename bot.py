@@ -36,7 +36,7 @@ async def mute(ctx, member: discord.Member):
 @Bot.command()
 async def reaction(ctx):
 	"""Добавляет эмоцию под сообщение"""
-    await ctx.message.add_reaction("🤡")
+	await ctx.message.add_reaction("🤡")
 
 
 
