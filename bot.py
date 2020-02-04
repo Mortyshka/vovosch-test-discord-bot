@@ -19,6 +19,7 @@ async def on_member_join(member):
 
 @Bot.command()
 async def hello(ctx):
+	"""Бот приветствует тебя в ответ"""
 	author = ctx.message.author
 	await ctx.send(f"Hello {author.mention}")
 	# await ctx.send(f"Hello <@{author.id}>")	# или так
@@ -27,13 +28,15 @@ async def hello(ctx):
 @Bot.command()
 @commands.has_permissions(administrator=True)
 async def mute(ctx, member: discord.Member):
+	"""Добавляет участнику роль, которая мутит на сервере"""
 	mute_role=discord.utils.get(ctx.message.guild.roles, name = "Ты в муте, долбаёб")
 	await member.add_roles(mute_role)
 
 
 @Bot.command()
 async def reaction(ctx):
-        await ctx.message.add_reaction("🤡")
+	"""Добавляет эмоцию под сообщение"""
+    await ctx.message.add_reaction("🤡")
 
 
 
