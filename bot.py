@@ -1,9 +1,14 @@
 import os
+import asyncio
+from itertools import cycle
+
 import discord
 from discord.ext import commands
 from discord.ext.commands import Bot
 
+
 ban_msg = ["qwe","123"]
+status = ['Msg1','Msg2','Msg3']
 
 prefix = '!'
 Bot=commands.Bot(command_prefix=prefix)
@@ -11,11 +16,22 @@ Bot=commands.Bot(command_prefix=prefix)
 # Удаляет команду
 #Bot.remove_command('help')
 
+# функция заменяет игровой статус бота каждые 5 сек
+async def change():
+        await Bot.wait_until_ready()
+        msgs = cycle(status)
+        while not Bot.is_closed():
+                current_status = next(msgs)
+                print(current_status)
+                await Bot.change_presence(activity=discord.Game(name=current_status))
+                await asyncio.sleep(5)
+
+
 
 # Говорит о начале работы бота
 @Bot.event
 async def on_ready():
-	print("Я онлайн!")
+	print("Бот онлайн!")
 
 
 # Фильтрация чата
@@ -92,16 +108,24 @@ async def on_raw_reaction_remove(payload):
 
 
 @Bot.command(pass_context = True)
-async def info(ctx, user: discord.User):
+async def info(ctx):
         """Выдаёт некую информацию"""
         emb = discord.Embed(title="Title", color=0x39d0d6)
         emb.add_field(name="Name", value="Value")
-        if user.game is not None:
-                emb.add_field(name="Game", value=user.game)
         emb.set_thumbnail(url=ctx.guild.icon_url)
         emb.set_author(name="Author", url=ctx.guild.icon_url)
         emb.set_footer(text="Footer", icon_url=ctx.guild.icon_url)
         await ctx.send(embed=emb)
+
+
+@Bot.command(pass_context = True)
+async def help_me(ctx):
+        """Отправляет сведения о коммандах (может в личку)"""
+        emb = discord.Embed(title= "Info about commands", colour=0x39d0d6)
+        emb.add_field(name= "{}help".format(prefix), value= "Show this embed")
+        emb.add_field(name= "{}hello".format(prefix), value= "Answer me")
+        await ctx.send(embed=emb)               # вывод на канал
+        #await ctx.author.send(embed=emb)        # вывод в личку
 
 
 @Bot.command(pass_context = True)
@@ -120,28 +144,37 @@ async def delete_role(ctx):
                         await i.delete()
 
 
+@Bot.command()
+@commands.has_permissions(administrator=True)
+async def kick(ctx,member:discord.Member):
+        """Кикает указанного члена сервера"""
+        await member.kick()
+
+
 @Bot.command(pass_context = True)
+@commands.has_permissions(administrator=True)
 async def ban(ctx, member: discord.Member):
         """Банит выбранного человека"""
         await member.guild.ban(member)
+        await ctx.send(f'Unban user {member.mention}')
 
 
 @Bot.command(pass_context = True)
-async def help_me(ctx):
-        """Отправляет сведения о коммандах (может в личку)"""
-        emb = discord.Embed(title= "Info about commands", colour=0x39d0d6)
-        emb.add_field(name= "{}help".format(prefix), value= "Show this embed")
-        emb.add_field(name= "{}hello".format(prefix), value= "Answer me")
-        await ctx.send(embed=emb)               # вывод на канал
-        #await ctx.author.send(embed=emb)        # вывод в личку
-
-
-@Bot.command()
-async def hello(ctx):
-	"""Бот приветствует тебя в ответ"""
-	author = ctx.message.author
-	await ctx.send(f"Hello {author.mention}")
-	# await ctx.send(f"Hello <@{author.id}>")	# или так
+@commands.has_permissions(administrator=True)
+async def unban(ctx, member):
+        """Разбанивает выбранного человека"""
+        banned_users = await ctx.guild.bans()
+        #print(member)
+        #print(banned_users)
+        for ban_entry in banned_users:
+                #print(str(ban_entry.user))
+                #print(member)
+                if str(ban_entry.user) == member:
+                        user = ban_entry.user
+                        await ctx.guild.unban(user)
+                        await ctx.send(f'Unban user {user.mention}')
+                        return
+        await ctx.send(f"Didn't find {member}")
 
 
 @Bot.command()
@@ -152,12 +185,41 @@ async def mute(ctx, member: discord.Member):
 	await member.add_roles(mute_role)
 
 
+# выводит сообщение, если команда выдаёт ошибку
+@mute.error 
+async def mute_error(ctx, error):
+        '''
+        commands.MissingRequiredArgument - отсутствие аргумента
+        commands.MissingPermissions - отсутствие нужных прав
+        commands.CommandNotFound - отсутствие команды
+        '''
+        if isinstance(error,commands.MissingRequiredArgument):
+                await ctx.send(f'{ctx.author.name}, вы не указали кого замутить!')
+
+
+@Bot.command()
+async def hello(ctx):
+        """Бот приветствует тебя в ответ"""
+        author = ctx.message.author
+        await ctx.send(f"Hello {author.mention}")
+        # await ctx.send(f"Hello <@{author.id}>")       # или так
+
+
 @Bot.command()
 async def reaction(ctx):
 	"""Добавляет эмоцию под сообщение"""
 	await ctx.message.add_reaction("🤡")      # не забудь вставить эмодзи
 
 
+@Bot.command()
+async def clear(ctx, amount = 1):
+        """Удаляет N кол-во последних сообщений"""
+        await ctx.channel.purge (limit = amount)
+
+
+
+# вызов функции замены игровой активности у бота
+Bot.loop.create_task(change())
 
 token=os.environ.get('BOT_TOKEN')	# для сервера, чтобы никто не видел токен
 Bot.run(str(token))
