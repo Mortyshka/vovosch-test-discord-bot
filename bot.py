@@ -244,8 +244,8 @@ async def clear(ctx, amount = 1):
 
 
 # вызов задних функций
-Bot.loop.create_task(change())
 Bot.loop.create_task(change_color())
+Bot.loop.create_task(change())
 
 token=os.environ.get('BOT_TOKEN')		# для сервера, чтобы никто не видел токен
 Bot.run(str(token))
