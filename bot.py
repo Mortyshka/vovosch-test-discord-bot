@@ -24,7 +24,9 @@ Bot=commands.Bot(command_prefix=prefix)
 # Удаляет команду
 #Bot.remove_command('help')
 
+
 # Функция меняет цвет роли каждые 1 секунду
+@tasks.loop()
 async def change_color():
        await Bot.wait_until_ready()
        colors = cycle(rainbow)
@@ -40,7 +42,9 @@ async def change_color():
                 await role.edit(colour = this_color)
                 await asyncio.sleep(1)
 
+
 # Функция заменяет игровой статус бота каждые 5 сек
+@tasks.loop()
 async def change():
         await Bot.wait_until_ready()
         msgs = cycle(status)
@@ -244,10 +248,10 @@ async def clear(ctx, amount = 1):
 
 
 # вызов задних функций
-Bot.loop.create_task(change_color())
-Bot.loop.create_task(change())
+change.start_color()
+change.start()
 
-token=os.environ.get('BOT_TOKEN')		# для сервера, чтобы никто не видел токен
+token=os.environ.get('BOT_TOKEN')	# для сервера, чтобы никто не видел токен
 Bot.run(str(token))
 
 #Bot.run(open('token.txt','r').readline())	# чтение токена из файла
