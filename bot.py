@@ -9,6 +9,14 @@ from discord.ext.commands import Bot
 
 ban_msg = ["qwe","123"]
 status = ['Msg1','Msg2','Msg3']
+rainbow = ['0xd40404',      # красный
+           '0xd85017',      # оранжевый
+           '0xe7ca0d',      # жёлтый
+           '0x1cc20a',      # зелёный
+           '0x0aaec2',      # голубой
+           '0x2a2dc9',      # синий
+           '0xc92ab9',      # фиолетовый
+           ]
 
 prefix = '!'
 Bot=commands.Bot(command_prefix=prefix)
@@ -16,13 +24,28 @@ Bot=commands.Bot(command_prefix=prefix)
 # Удаляет команду
 #Bot.remove_command('help')
 
-# функция заменяет игровой статус бота каждые 5 сек
+# Функция меняет цвет роли каждые 1 секунду
+async def change_color():
+       await Bot.wait_until_ready()
+       colors = cycle(rainbow)
+       server_id = 672451361866121222   # id сервера
+       role_id = 674646053110415371     # id роли
+       server = Bot.get_guild(server_id)
+       role = server.get_role(role_id)
+       this_color = role.colour         # создание класса Colour
+       while not Bot.is_closed():
+                next_color = next(colors)             # берём след цвет
+                this_color.value = int(next_color,16) # надо перевести цвет из 16 в 10 систему счислений
+                # не можем вставить просто цвет, нужно вставить класс Colour
+                await role.edit(colour = this_color)
+                await asyncio.sleep(1)
+
+# Функция заменяет игровой статус бота каждые 5 сек
 async def change():
         await Bot.wait_until_ready()
         msgs = cycle(status)
         while not Bot.is_closed():
                 current_status = next(msgs)
-                print(current_status)
                 await Bot.change_presence(activity=discord.Game(name=current_status))
                 await asyncio.sleep(5)
 
@@ -56,16 +79,17 @@ async def on_member_join(member):
 async def on_raw_reaction_add(payload):
         POST_ID = 674874182483443722	# ID сообщения, где ставятся реакции
         circus = {
-        '🐯':674857578932731925,  # тигр
-        '🐉':674857717269135361,  # дракон
-        '🤡':674857774215200789,  # клоун
-        '🤖':674857894306512908,}  # машина
+        '🐯':674857578932731925,  # тигр : id роли №1
+        '🐉':674857717269135361,  # дракон : id роли №2
+        '🤡':674857774215200789,  # клоун : id роли №3
+        '🤖':674857894306512908,  # машина : id роли №4
+        }
         if payload.message_id == POST_ID:
                 
                 try:
                         channel = Bot.get_channel(payload.channel_id) # канал, где было поставлена реакция (для нахождения объекта "cообщение")
-                        message = await channel.fetch_message(payload.message_id) # получаем объект сообщения (для нахождения объекта "член")
-                        member = discord.utils.get(message.guild.members, id=payload.user_id) # получаем объект пользователя который поставил реакци
+                        message = await channel.fetch_message(payload.message_id) # получаем объект "сообщение" (для нахождения объекта "член")
+                        member = discord.utils.get(message.guild.members, id=payload.user_id) # получаем объект "член", который поставил реакци
                         if (str(payload.emoji) in circus.keys()):
                                 role = discord.utils.get(message.guild.roles, id=circus[str(payload.emoji)]) # объект выбранной роли (если есть)
                                 await member.add_roles(role)
@@ -85,17 +109,18 @@ async def on_raw_reaction_add(payload):
 async def on_raw_reaction_remove(payload):
         POST_ID = 674874182483443722
         circus = {
-        '🐯':674857578932731925,  # тигр
-        '🐉':674857717269135361,  # дракон
-        '🤡':674857774215200789,  # клоун
-        '🤖':674857894306512908,}  # машина
+        '🐯':674857578932731925,  # тигр : id роли №1
+        '🐉':674857717269135361,  # дракон : id роли №2
+        '🤡':674857774215200789,  # клоун : id роли №3
+        '🤖':674857894306512908,  # машина : id роли №4
+        }
         if payload.message_id == POST_ID:
                 
                 try:
                         if (str(payload.emoji) in circus.keys()):
                                 channel = Bot.get_channel(payload.channel_id)
-                                message = await channel.fetch_message(payload.message_id) # получаем объект сообщения
-                                member = discord.utils.get(message.guild.members, id=payload.user_id) # получаем объект пользователя который поставил реакци
+                                message = await channel.fetch_message(payload.message_id) # получаем объект "сообщение"
+                                member = discord.utils.get(message.guild.members, id=payload.user_id) # получаем объект "пользователь", который поставил реакцию
                                 role = discord.utils.get(message.guild.roles, id=int(circus[str(payload.emoji)])) # объект выбранной роли (если есть)
                                 await member.remove_roles(role)
                                 print('[SUCCESS] Role {1.name} has been remove for user {0.display_name}'.format(member, role))
@@ -208,7 +233,7 @@ async def hello(ctx):
 @Bot.command()
 async def reaction(ctx):
 	"""Добавляет эмоцию под сообщение"""
-	await ctx.message.add_reaction("🤡")      # не забудь вставить эмодзи
+	await ctx.message.add_reaction("🤡")
 
 
 @Bot.command()
@@ -218,10 +243,11 @@ async def clear(ctx, amount = 1):
 
 
 
-# вызов функции замены игровой активности у бота
+# вызов задних функций
 Bot.loop.create_task(change())
+Bot.loop.create_task(change_color())
 
-token=os.environ.get('BOT_TOKEN')	# для сервера, чтобы никто не видел токен
+token=os.environ.get('BOT_TOKEN')		# для сервера, чтобы никто не видел токен
 Bot.run(str(token))
 
 #Bot.run(open('token.txt','r').readline())	# чтение токена из файла
