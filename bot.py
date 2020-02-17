@@ -43,7 +43,7 @@ async def change_color():
                 await asyncio.sleep(1)
 
 
-# Функция заменяет игровой статус бота каждые 5 сек
+# Функция заменяет игровой статус бота каждые 3 сек
 @tasks.loop()
 async def change():
         await Bot.wait_until_ready()
@@ -51,7 +51,7 @@ async def change():
         while not Bot.is_closed():
                 current_status = next(msgs)
                 await Bot.change_presence(activity=discord.Game(name=current_status))
-                await asyncio.sleep(5)
+                await asyncio.sleep(3)
 
 
 
@@ -149,7 +149,7 @@ async def info(ctx):
 
 @Bot.command(pass_context = True)
 async def help_me(ctx):
-        """Отправляет сведения о коммандах (может в личку)"""
+        """Отправляет сведения о некоторых коммандах (может в личку)"""
         emb = discord.Embed(title= "Info about commands", colour=0x39d0d6)
         emb.add_field(name= "{}help".format(prefix), value= "Show this embed")
         emb.add_field(name= "{}hello".format(prefix), value= "Answer me")
@@ -193,11 +193,7 @@ async def ban(ctx, member: discord.Member):
 async def unban(ctx, member):
         """Разбанивает выбранного человека"""
         banned_users = await ctx.guild.bans()
-        #print(member)
-        #print(banned_users)
         for ban_entry in banned_users:
-                #print(str(ban_entry.user))
-                #print(member)
                 if str(ban_entry.user) == member:
                         user = ban_entry.user
                         await ctx.guild.unban(user)
@@ -214,7 +210,7 @@ async def mute(ctx, member: discord.Member):
 	await member.add_roles(mute_role)
 
 
-# выводит сообщение, если команда выдаёт ошибку
+# выводит сообщение, если команда mute выдаёт ошибку
 @mute.error 
 async def mute_error(ctx, error):
         '''
