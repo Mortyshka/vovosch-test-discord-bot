@@ -260,7 +260,7 @@ async def rainbow(ctx):
 rir = change.start()
 
 
-#token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
-#Bot.run(str(token))
+token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
+Bot.run(str(token))
 
-Bot.run(open('token.txt','r').readline())  # чтение токена из файла
+#Bot.run(open('token.txt','r').readline())  # чтение токена из файла
