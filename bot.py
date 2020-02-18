@@ -18,6 +18,7 @@ rainbow = ['0xd40404',      # красный
            '0xc92ab9',      # фиолетовый
            ]
 
+
 prefix = '!'
 Bot=commands.Bot(command_prefix=prefix)
 
@@ -26,21 +27,24 @@ Bot=commands.Bot(command_prefix=prefix)
 
 
 # Функция меняет цвет роли каждые 1 секунду
+# при долгой работе выдаёт ошибку "429 too many requests"
 @tasks.loop()
 async def change_color():
-       await Bot.wait_until_ready()
-       colors = cycle(rainbow)
-       server_id = 672451361866121222   # id сервера
-       role_id = 674646053110415371     # id роли
-       server = Bot.get_guild(server_id)
-       role = server.get_role(role_id)
-       this_color = role.colour         # создание класса Colour
-       while not Bot.is_closed():
-                next_color = next(colors)             # берём след цвет
-                this_color.value = int(next_color,16) # надо перевести цвет из 16 в 10 систему счислений
-                # не можем вставить просто цвет, нужно вставить класс Colour
-                await role.edit(colour = this_color)
-                await asyncio.sleep(1)
+        await Bot.wait_until_ready()
+        colors = cycle(rainbow)
+        server_id = 672451361866121222   # id сервера
+        role_id = 674646053110415371     # id роли
+        server = Bot.get_guild(server_id)
+        role = server.get_role(role_id)
+        this_color = role.colour         # создание класса Colour
+        while not Bot.is_closed():
+            next_color = next(colors)             # берём след цвет
+            this_color.value = int(next_color,16) # надо перевести цвет из 16 в 10 систему счислений
+            # не можем вставить просто цвет, нужно вставить класс Colour
+            await role.edit(colour = this_color)
+            await asyncio.sleep(1)
+
+
 
 
 # Функция заменяет игровой статус бота каждые 3 сек
@@ -58,7 +62,7 @@ async def change():
 # Говорит о начале работы бота
 @Bot.event
 async def on_ready():
-	print("Бот онлайн!")
+        print("Бот онлайн!")
 
 
 # Фильтрация чата
@@ -74,14 +78,14 @@ async def on_message(msg):
 # Выдача роли новому члену сервера
 @Bot.event
 async def on_member_join(member):
-	role=discord.utils.get(member.guild.roles, name = "Всякий сброд")
-	await member.add_roles(role)
+        role = discord.utils.get(member.guild.roles, name = "Всякий сброд")
+        await member.add_roles(role)
 
 
 # Выдача роли по реакции
 @Bot.event
 async def on_raw_reaction_add(payload):
-        POST_ID = 674874182483443722	# ID сообщения, где ставятся реакции
+        POST_ID = 674874182483443722    # ID сообщения, где ставятся реакции
         circus = {
         '🐯':674857578932731925,  # тигр : id роли №1
         '🐉':674857717269135361,  # дракон : id роли №2
@@ -205,9 +209,9 @@ async def unban(ctx, member):
 @Bot.command()
 @commands.has_permissions(administrator=True)
 async def mute(ctx, member: discord.Member):
-	"""Добавляет участнику роль, которая мутит на сервере"""
-	mute_role=discord.utils.get(ctx.message.guild.roles, name = "Ты в муте, долбаёб")
-	await member.add_roles(mute_role)
+        """Добавляет участнику роль, которая мутит на сервере"""
+        mute_role=discord.utils.get(ctx.message.guild.roles, name = "Ты в муте, долбаёб")
+        await member.add_roles(mute_role)
 
 
 # выводит сообщение, если команда mute выдаёт ошибку
@@ -232,8 +236,8 @@ async def hello(ctx):
 
 @Bot.command()
 async def reaction(ctx):
-	"""Добавляет эмоцию под сообщение"""
-	await ctx.message.add_reaction("🤡")
+        """Добавляет эмоцию под сообщение"""
+        await ctx.message.add_reaction("🤡")
 
 
 @Bot.command()
@@ -242,12 +246,21 @@ async def clear(ctx, amount = 1):
         await ctx.channel.purge (limit = amount)
 
 
+@Bot.command()
+async def rainbow(ctx):
+        """Меняет цвет роли "Воть" """
+        x = change_color.start()
+        await asyncio.sleep(100)
+        x.close()
 
+
+
+# пожет быть ошибка при очень частых обращениях "429 too many requests"
 # вызов задних функций
-change_color.start()
-change.start()
+rir = change.start()
 
-token=os.environ.get('BOT_TOKEN')	# для сервера, чтобы никто не видел токен
-Bot.run(str(token))
 
-#Bot.run(open('token.txt','r').readline())	# чтение токена из файла
+#token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
+#Bot.run(str(token))
+
+Bot.run(open('token.txt','r').readline())  # чтение токена из файла
