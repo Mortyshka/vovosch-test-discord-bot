@@ -15,8 +15,8 @@ colors_of_rainbow = ['0xd40404',      # красный
                      '0x1cc20a',      # зелёный
                      '0x0aaec2',      # голубой
                      '0x2a2dc9',      # синий
-                     '0xc92ab9',      # фиолетовый
-                    ]
+                     '0xc92ab9']      # фиолетовый
+
 
 
 prefix = '!'
@@ -242,8 +242,8 @@ async def rainbow(ctx):
         colors = cycle(colors_of_rainbow)
         role_id = 674646053110415371        # id роли
         role = ctx.guild.get_role(role_id)  # сама роль, у которой меняется цвет
-        this_color = role.Colour            # создание класса Colour
-        old_color = role.Сolour
+        this_color = role.сolour            # создание класса Colour
+        old_color = role.сolour
         change_color.start(colors, this_color, role)
         await asyncio.sleep(60)
         change_color.stop()
@@ -264,4 +264,4 @@ async def play(ctx):
 token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
 Bot.run(str(token))
 
-#Bot.run(open('token.txt','r').readline())  # чтение токена из файла
+Bot.run(open('token.txt','r').readline())  # чтение токена из файла
