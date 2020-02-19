@@ -26,36 +26,24 @@ Bot=commands.Bot(command_prefix=prefix)
 #Bot.remove_command('help')
 
 
-# Функция меняет цвет роли каждые 1 секунду
 # при долгой работе выдаёт ошибку "429 too many requests"
+# Функция меняет цвет роли каждые 1 секунду
 @tasks.loop()
-async def change_color():
-        await Bot.wait_until_ready()
-        colors = cycle(rainbow)
-        server_id = 672451361866121222   # id сервера
-        role_id = 674646053110415371     # id роли
-        server = Bot.get_guild(server_id)
-        role = server.get_role(role_id)
-        this_color = role.colour         # создание класса Colour
-        while not Bot.is_closed():
-            next_color = next(colors)             # берём след цвет
-            this_color.value = int(next_color,16) # надо перевести цвет из 16 в 10 систему счислений
-            # не можем вставить просто цвет, нужно вставить класс Colour
-            await role.edit(colour = this_color)
-            await asyncio.sleep(1)
+async def change_color(colors, this_color, role):
+        next_color = next(colors)             # берём след цвет
+        this_color.value = int(next_color,16) # надо перевести цвет из 16 в 10 систему счислений
+        # не можем вставить просто цвет, нужно вставить класс Colour
+        await role.edit(colour = this_color)
+        await asyncio.sleep(1)
 
 
-
-
+# при долгой работе выдаёт ошибку "429 too many requests"
 # Функция заменяет игровой статус бота каждые 1 сек
 @tasks.loop()
-async def change():
-        await Bot.wait_until_ready()
-        msgs = cycle(status)
-        while not Bot.is_closed():
-                current_status = next(msgs)
-                await Bot.change_presence(activity=discord.Game(name=current_status))
-                await asyncio.sleep(1)
+async def change(msgs):
+        current_status = next(msgs)
+        await Bot.change_presence(activity=discord.Game(name=current_status))  # "играет в ..."
+        await asyncio.sleep(1)
 
 
 
@@ -249,20 +237,30 @@ async def clear(ctx, amount = 1):
 @Bot.command()
 async def rainbow(ctx):
         """Меняет цвет роли "Воть" """
-        x = change_color.start()
+        await Bot.wait_until_ready()
+        colors = cycle(colors_of_rainbow)
+        role_id = 674646053110415371     # id роли
+        role = ctx.guild.get_role(role_id)
+        this_color = role.colour         # создание класса Colour
+        old_color = role.colour
+        change_color.start(colors, this_color, role)
         await asyncio.sleep(100)
-        x.close()
+        change_color.stop()
+        await role.edit(colour = old_color)
 
 
 @Bot.command()
 async def play(ctx):
         """ Меняет статус бота"""
-        y = change.start()
+        await Bot.wait_until_ready()
+        msgs = cycle(status)
+        change.start(msgs)
         await asyncio.sleep(100)
-        y.close()
+        change.stop()
+        await Bot.change_presence(activity=None)
 
 
-token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
-Bot.run(str(token))
+#token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
+#Bot.run(str(token))
 
-#Bot.run(open('token.txt','r').readline())  # чтение токена из файла
+Bot.run(open('token.txt','r').readline())  # чтение токена из файла
