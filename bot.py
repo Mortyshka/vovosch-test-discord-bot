@@ -240,10 +240,10 @@ async def rainbow(ctx):
         """Меняет цвет роли "Воть" """
         await Bot.wait_until_ready()
         colors = cycle(colors_of_rainbow)
-        role_id = 674646053110415371        # id роли
-        role = ctx.guild.get_role(role_id)  # сама роль, у которой меняется цвет
-        this_color = role.сolour            # создание класса Colour
-        old_color = role.сolour
+        role_id = 674646053110415371     # id роли
+        role = ctx.guild.get_role(role_id)
+        this_color = role.colour         # создание класса Colour
+        old_color = role.colour
         change_color.start(colors, this_color, role)
         await asyncio.sleep(60)
         change_color.stop()
