@@ -41,9 +41,10 @@ async def change_color(colors, this_color, role):
 # Функция заменяет игровой статус бота каждые 1 сек
 @tasks.loop()
 async def change(msgs):
-        current_status = next(msgs)
+        current_status = next(msgs)     # выбираем след статус
         await Bot.change_presence(activity=discord.Game(name=current_status))  # "играет в ..."
-        await asyncio.sleep(1)
+        # не рекомендую ставить меньше 4, начинает тупить и виснуть
+        await asyncio.sleep(4)
 
 
 
@@ -159,7 +160,7 @@ async def create_role(ctx):
 
 @Bot.command(pass_context = True)
 async def delete_role(ctx):
-        """Удаляет роль, в котором есть вводимое слово"""
+        """Удаляет роль, в котором есть вводимые слова"""
         for i in ctx.guild.roles:
                 if (' '.join(ctx.message.content.split(' ')[1:])) in i.name:
                         await i.delete()
@@ -239,14 +240,14 @@ async def rainbow(ctx):
         """Меняет цвет роли "Воть" """
         await Bot.wait_until_ready()
         colors = cycle(colors_of_rainbow)
-        role_id = 674646053110415371     # id роли
-        role = ctx.guild.get_role(role_id)
-        this_color = role.colour         # создание класса Colour
-        old_color = role.colour
+        role_id = 674646053110415371        # id роли
+        role = ctx.guild.get_role(role_id)  # сама роль, у которой меняется цвет
+        this_color = role.Colour            # создание класса Colour
+        old_color = role.Сolour
         change_color.start(colors, this_color, role)
-        await asyncio.sleep(100)
+        await asyncio.sleep(60)
         change_color.stop()
-        await role.edit(colour = old_color)
+        await role.edit(colour = old_color) # возвращает роли изначальный цвет
 
 
 @Bot.command()
@@ -255,12 +256,12 @@ async def play(ctx):
         await Bot.wait_until_ready()
         msgs = cycle(status)
         change.start(msgs)
-        await asyncio.sleep(100)
+        await asyncio.sleep(60)
         change.stop()
-        await Bot.change_presence(activity=None)
+        await Bot.change_presence(activity=None)    # устанавливает активность равной "None"
 
 
-token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
-Bot.run(str(token))
+#token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
+#Bot.run(str(token))
 
-#Bot.run(open('token.txt','r').readline())  # чтение токена из файла
+Bot.run(open('token.txt','r').readline())  # чтение токена из файла
