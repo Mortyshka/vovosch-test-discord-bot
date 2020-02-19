@@ -47,7 +47,7 @@ async def change_color():
 
 
 
-# Функция заменяет игровой статус бота каждые 3 сек
+# Функция заменяет игровой статус бота каждые 1 сек
 @tasks.loop()
 async def change():
         await Bot.wait_until_ready()
@@ -55,7 +55,7 @@ async def change():
         while not Bot.is_closed():
                 current_status = next(msgs)
                 await Bot.change_presence(activity=discord.Game(name=current_status))
-                await asyncio.sleep(3)
+                await asyncio.sleep(1)
 
 
 
@@ -254,10 +254,12 @@ async def rainbow(ctx):
         x.close()
 
 
-
-# пожет быть ошибка при очень частых обращениях "429 too many requests"
-# вызов задних функций
-rir = change.start()
+@Bot.command()
+async def play(ctx):
+        """ Меняет статус бота"""
+        y = change.start()
+        await asyncio.sleep(100)
+        y.close()
 
 
 token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
