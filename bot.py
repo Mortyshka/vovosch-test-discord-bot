@@ -160,7 +160,7 @@ async def create_role(ctx):
 
 @Bot.command(pass_context = True)
 async def delete_role(ctx):
-        """Удаляет роль, в котором есть вводимые слова"""
+        """Удаляет роль, в котором есть сочитание слов"""
         for i in ctx.guild.roles:
                 if (' '.join(ctx.message.content.split(' ')[1:])) in i.name:
                         await i.delete()
@@ -261,7 +261,7 @@ async def play(ctx):
         await Bot.change_presence(activity=None)    # устанавливает активность равной "None"
 
 
-#token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
-#Bot.run(str(token))
+token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
+Bot.run(str(token))
 
-Bot.run(open('token.txt','r').readline())  # чтение токена из файла
+#Bot.run(open('token.txt','r').readline())  # чтение токена из файла
