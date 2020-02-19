@@ -9,14 +9,14 @@ from discord.ext.commands import Bot
 
 ban_msg = ["qwe","123"]
 status = ['Msg1','Msg2','Msg3']
-rainbow = ['0xd40404',      # красный
-           '0xd85017',      # оранжевый
-           '0xe7ca0d',      # жёлтый
-           '0x1cc20a',      # зелёный
-           '0x0aaec2',      # голубой
-           '0x2a2dc9',      # синий
-           '0xc92ab9',      # фиолетовый
-           ]
+colors_of_rainbow = ['0xd40404',      # красный
+                     '0xd85017',      # оранжевый
+                     '0xe7ca0d',      # жёлтый
+                     '0x1cc20a',      # зелёный
+                     '0x0aaec2',      # голубой
+                     '0x2a2dc9',      # синий
+                     '0xc92ab9',      # фиолетовый
+                    ]
 
 
 prefix = '!'
@@ -160,7 +160,7 @@ async def create_role(ctx):
 
 @Bot.command(pass_context = True)
 async def delete_role(ctx):
-        """Удаляет роль, в котором есть сочитание слов"""
+        """Удаляет роль, в котором есть вводимые слова"""
         for i in ctx.guild.roles:
                 if (' '.join(ctx.message.content.split(' ')[1:])) in i.name:
                         await i.delete()
