@@ -1,3 +1,4 @@
 discord.py
 asyncio
 more-itertools
+discord.py[voice]
