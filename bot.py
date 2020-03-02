@@ -5,6 +5,7 @@ from itertools import cycle
 import discord
 from discord.ext import tasks,commands
 from discord.ext.commands import Bot
+from discord.utils import get
 
 
 ban_msg = ["qwe","123"]
@@ -259,6 +260,26 @@ async def play(ctx):
         await asyncio.sleep(60)
         change.stop()
         await Bot.change_presence(activity=None)    # устанавливает активность равной "None"
+
+
+@Bot.command()
+async def join(ctx):
+        global voice
+        channel = ctx.message.author.voice.channel  # канал, на котором сидит автор комманды
+        voice = get(Bot.voice_clients, guild = ctx.guild)
+        if voice and voice.is_connected():
+            await voice.move_to(channel)
+        else:
+            voice = await channel.connect()
+            await ctx.send(f'Бот присоединился к каналу: {channel}')
+
+
+@Bot.command()
+async def leave(ctx):
+        channel = ctx.message.author.voice.channel
+        if voice and voice.is_connected():
+            await voice.disconnect()
+            await ctx.send(f'Бот отсоединился от канала: {channel}')
 
 
 token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
