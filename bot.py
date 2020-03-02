@@ -253,7 +253,7 @@ async def rainbow(ctx):
 
 @Bot.command()
 async def play(ctx):
-        """ Меняет статус бота"""
+        """Меняет статус бота"""
         await Bot.wait_until_ready()
         msgs = cycle(status)
         change.start(msgs)
@@ -264,6 +264,7 @@ async def play(ctx):
 
 @Bot.command()
 async def join(ctx):
+        """Добавляет бота в голосовой канал"""
         global voice
         channel = ctx.message.author.voice.channel  # канал, на котором сидит автор комманды
         voice = get(Bot.voice_clients, guild = ctx.guild)
@@ -276,10 +277,13 @@ async def join(ctx):
 
 @Bot.command()
 async def leave(ctx):
+        """Убирает бота из голосового канала"""
         channel = ctx.message.author.voice.channel
         if voice and voice.is_connected():
             await voice.disconnect()
             await ctx.send(f'Бот отсоединился от канала: {channel}')
+
+
 
 
 token=os.environ.get('BOT_TOKEN')   # для сервера, чтобы никто не видел токен
